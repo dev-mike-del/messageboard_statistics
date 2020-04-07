@@ -1,6 +1,8 @@
 import json
 from typing import Dict
 
+import requests
+
 
 class MessageBoardAPIWrapper:
     """
@@ -9,14 +11,21 @@ class MessageBoardAPIWrapper:
     http://localhost:8080/api/
     """
 
+    response = requests.get('http://localhost:8080/api/messages')
+
     def __init__(self):
-        pass
+        self.response = requests.get('http://localhost:8080/api/messages').json()
 
     def num_messages(self) -> int:
         """
         Returns the total number of messages.
         """
-        raise NotImplementedError
+        try:
+            return len(self.response)
+        except Exception as e:
+            raise e
+        else:
+            raise NotImplementedError
 
     def most_common_word(self) -> str:
         """
@@ -59,17 +68,17 @@ def main():
 
     print(f"Total number of messages: {messageboard.num_messages()}")
     print(f"Most common word: {messageboard.most_common_word()}")
-    print(
-        f"Avg. number of words per sentence.:"
-        f"{messageboard.avg_num_words_per_sentence()}"
-    )
-    print(
-        f"Avg. number of messages per thread, per topic.:"
-        f"{messageboard.avg_num_msg_thread_topic()}"
-    )
+    # print(
+    #     f"Avg. number of words per sentence.:"
+    #     f"{messageboard.avg_num_words_per_sentence()}"
+    # )
+    # print(
+    #     f"Avg. number of messages per thread, per topic.:"
+    #     f"{messageboard.avg_num_msg_thread_topic()}"
+    # )
 
-    messageboard.to_json()
-    print("Message Board written to `messageboard.json`")
+    # messageboard.to_json()
+    # print("Message Board written to `messageboard.json`")
     return
 
 
