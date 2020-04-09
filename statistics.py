@@ -1,6 +1,7 @@
 import json
 from typing import Dict
 
+import pandas as pd
 import requests
 
 
@@ -14,10 +15,11 @@ class MessageBoardAPIWrapper:
 
     http://localhost:8080/api/
     """
-    response = requests.get('http://localhost:8080/api/messages')
 
     def __init__(self):
-        self.response = requests.get('http://localhost:8080/api/messages').json()
+        self.topics = requests.get('http://localhost:8080/api/topics').json()
+        self.threads = requests.get('http://localhost:8080/api/threads').json()
+        self.messages = requests.get('http://localhost:8080/api/messages').json()
 
     def num_messages(self) -> int:
         """
@@ -25,7 +27,7 @@ class MessageBoardAPIWrapper:
         """
         #Try to return the length of the response object
         try:
-            return len(self.response)
+            return len(self.messages)
         except Exception as e:
             raise e
         else:
@@ -37,7 +39,7 @@ class MessageBoardAPIWrapper:
         """
         try:
             word_list = []
-            for result in self.response:
+            for result in self.messages:
                 for word in result['content'].split():
                     # This checks if the first letter of the word is in the 
                     # punctuation_list. If it is, the function replaces the letter 
@@ -64,7 +66,7 @@ class MessageBoardAPIWrapper:
         try:
             content = []
             words_per_sentence = []
-            for result in self.response:
+            for result in self.messages:
                 content.append(result['content'])
             content = "".join(content).split('.')
             for sentence in content:
@@ -81,7 +83,37 @@ class MessageBoardAPIWrapper:
         """
         Returns the average number of messages per thread, per topic.
         """
-        raise NotImplementedError
+        try:
+            num_of_topics = len(self.topics)
+            num_of_threads = len(self.threads)
+            df_threads = pd.DataFrame(self.threads)
+            df_messages = pd.DataFrame(self.messages)
+
+            i = 1
+            results = {}
+            while i <= num_of_topics:
+                df_thread_sample = df_threads.loc[df_threads['topic'] == i]
+                results[i] = df_thread_sample.id.to_string(index=False).split()
+                i += 1
+
+            for topic in results:
+                value_list = []
+                for thread in results[topic]:
+                    df_message_sample = df_messages.loc[df_messages['thread'] == int(thread)]
+                    value_list.append(len(df_message_sample))
+                results[topic] = value_list
+                value_list = round(sum(value_list) / len(value_list))
+                results[topic] = value_list
+            return round(sum(results.values()) / len(results.values()))    
+
+
+
+
+
+
+
+        except Exception as e:
+            raise e
 
     def _as_dict(self) -> dict:
         """
@@ -110,10 +142,10 @@ def main():
         f"Avg. number of words per sentence.:"
         f"{messageboard.avg_num_words_per_sentence()}"
     )
-    # print(
-    #     f"Avg. number of messages per thread, per topic.:"
-    #     f"{messageboard.avg_num_msg_thread_topic()}"
-    # )
+    print(
+        f"Avg. number of messages per thread, per topic.:"
+        f"{messageboard.avg_num_msg_thread_topic()}"
+    )
 
     # messageboard.to_json()
     # print("Message Board written to `messageboard.json`")
