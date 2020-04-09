@@ -157,8 +157,6 @@ def main():
         f"{messageboard.avg_num_msg_thread_topic()}"
     )
 
-    print(messageboard._as_dict())
-
     messageboard.to_json()
     print("Message Board written to `messageboard.json`")
     return
