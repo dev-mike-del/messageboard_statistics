@@ -116,13 +116,14 @@ class MessageBoardAPIWrapper:
         try:
             results = {}
             for topic in self.topics:
+                results[topic['title']] = {}
                 for thread in self.threads:
                     if thread['topic'] == topic['id']:
-                        results[topic['title']] = {thread['title']:""}
+                        results[topic['title']][thread['title']] = ''
                         message_list = []
                         for message in self.messages:
                             if message['thread'] == thread['id']:
-                                message_list.append(message['title'])
+                                message_list.append(message['content'])
                             results[topic['title']][thread['title']] = message_list
             return(results)
 
@@ -156,7 +157,7 @@ def main():
         f"{messageboard.avg_num_msg_thread_topic()}"
     )
 
-    print(_as_dict())
+    print(messageboard._as_dict())
 
     messageboard.to_json()
     print("Message Board written to `messageboard.json`")
