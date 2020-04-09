@@ -106,12 +106,6 @@ class MessageBoardAPIWrapper:
                 results[topic] = value_list
             return round(sum(results.values()) / len(results.values()))    
 
-
-
-
-
-
-
         except Exception as e:
             raise e
 
@@ -119,7 +113,22 @@ class MessageBoardAPIWrapper:
         """
         Returns the entire messageboard as a nested dictionary.
         """
-        raise NotImplementedError
+        try:
+            results = {}
+            for topic in self.topics:
+                for thread in self.threads:
+                    if thread['topic'] == topic['id']:
+                        results[topic['title']] = {thread['title']:""}
+                        message_list = []
+                        for message in self.messages:
+                            if message['thread'] == thread['id']:
+                                message_list.append(message['title'])
+                            results[topic['title']][thread['title']] = message_list
+            return(results)
+
+
+        except Exception as e:
+            raise e
 
     def to_json(self) -> None:
         """
@@ -147,8 +156,10 @@ def main():
         f"{messageboard.avg_num_msg_thread_topic()}"
     )
 
-    # messageboard.to_json()
-    # print("Message Board written to `messageboard.json`")
+    print(_as_dict())
+
+    messageboard.to_json()
+    print("Message Board written to `messageboard.json`")
     return
 
 
