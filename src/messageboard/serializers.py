@@ -63,6 +63,10 @@ class MessageSerializer(serializers.ModelSerializer):
         serializers.ModelSerializer: Base Django REST Framework Model
             Serializer class.
     """
+    id = serializers.HyperlinkedRelatedField(
+        read_only=True,
+        view_name='message-detail',
+    )
 
     class Meta:
         """
@@ -73,3 +77,4 @@ class MessageSerializer(serializers.ModelSerializer):
 
         model = Message
         fields = "__all__"
+
